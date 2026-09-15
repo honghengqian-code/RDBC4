@@ -1,0 +1,122 @@
+
+> frontend@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use, trying 3001 instead.
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3001
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1216ms
+ ⨯ Failed to find font override values for font `Newsreader`
+ ○ Compiling / ...
+ ⨯ Failed to find font override values for font `Newsreader`
+ ✓ Compiled / in 2.5s (603 modules)
+[2026-09-15T01:47:40.951Z] [INFO] Fetched 1 job(s) { title: undefined, location: undefined }
+ GET / 200 in 2679ms
+[2026-09-15T01:47:41.012Z] [INFO] Fetched 1 job(s) { title: undefined, location: undefined }
+ GET / 200 in 37ms
+ ○ Compiling /post ...
+ ✓ Compiled /post in 2.3s (538 modules)
+ GET /post 200 in 2358ms
+ ✓ Compiled /apply in 155ms (545 modules)
+[2026-09-15T01:47:43.582Z] [INFO] Fetched 1 job(s) {}
+ GET /apply 200 in 190ms
+ ✓ Compiled /jobs/[id]/apply in 205ms (560 modules)
+[2026-09-15T01:47:51.738Z] [INFO] Fetched job 1
+[2026-09-15T01:47:51.740Z] [INFO] Fetched 1 application(s) for job 1
+ GET /jobs/1/apply 200 in 562ms
+[2026-09-15T01:47:51.796Z] [ERROR] Request to /jobs/999 failed with status 404
+[2026-09-15T01:47:51.797Z] [ERROR] Request to /jobs/999/applications failed with status 404
+ GET /jobs/999/apply 404 in 46ms
+[2026-09-15T01:47:51.859Z] [INFO] Fetched 0 job(s) { title: 'Nope', location: undefined }
+ GET /?title=Nope 200 in 43ms
+[2026-09-15T01:48:41.204Z] [INFO] Fetched 1 job(s) { title: undefined, location: undefined }
+ GET / 200 in 23ms
+[2026-09-15T01:48:41.279Z] [INFO] Fetched job 1
+[2026-09-15T01:48:41.279Z] [INFO] Fetched 1 application(s) for job 1
+ GET /jobs/1/apply 200 in 40ms
+[2026-09-15T01:48:51.646Z] [INFO] Fetched 1 job(s) { title: undefined, location: undefined }
+ GET / 200 in 329ms
+ ✓ Compiled in 279ms (550 modules)
+[2026-09-15T01:49:08.964Z] [INFO] Fetched 2 job(s) { title: undefined, location: undefined }
+ GET / 200 in 92ms
+[2026-09-15T01:49:13.468Z] [INFO] Fetched job 1
+[2026-09-15T01:49:13.471Z] [INFO] Fetched 2 application(s) for job 1
+ GET /jobs/1/apply 200 in 72ms
+ ⨯ Failed to generate static paths for /jobs/[id]/apply:
+Error: Cannot find module './vendor-chunks/next.js'
+Require stack:
+- /home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js
+- /home/reluvate/RDBC/RDBC4/frontend/.next/server/app/jobs/[id]/apply/page.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/load-components.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/build/utils.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/static-paths-worker.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/jest-worker/processChild.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require-hook.js:55:36
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+    at Module._load (node:internal/modules/cjs/loader:1192:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Module.require (node:internal/modules/cjs/loader:1463:12)
+    at mod.require (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:147:16) {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/.next/server/app/jobs/[id]/apply/page.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/load-components.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/build/utils.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/static-paths-worker.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/jest-worker/processChild.js'
+  ]
+}
+ ✓ Compiled /apply in 79ms (282 modules)
+ ⨯ TypeError: __webpack_modules__[moduleId] is not a function
+    at Object.__webpack_require__ [as require] (/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js:33:42)
+    at JSON.parse (<anonymous>)
+digest: "4241067496"
+TypeError: __webpack_modules__[moduleId] is not a function
+    at Object.__webpack_require__ [as require] (/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js:33:42)
+    at require (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:40:20064)
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:108376
+    at ea (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:108583)
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:110813
+    at Object._fromJSON (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:111370)
+    at JSON.parse (<anonymous>)
+    at ec (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:109078)
+    at eo (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:108123)
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:115291
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:115308
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:115341
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:115358
+    at t (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:115581)
+[2026-09-15T01:49:40.819Z] [INFO] Fetched 2 job(s) {}
+ ⨯ TypeError: __webpack_modules__[moduleId] is not a function
+    at Object.__webpack_require__ [as require] (/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js:33:42)
+    at require (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:40:20064)
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:108376
+    at ea (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:108583)
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:110813
+    at Object._fromJSON (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:111370)
+    at JSON.parse (<anonymous>)
+    at ec (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:109078)
+    at eo (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:108123)
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:115291
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:115308
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:115341
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:115358
+    at t (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:35:115581) {
+  page: '/apply'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1061ms (782 modules)
+ GET /apply 500 in 1288ms
+[2026-09-15T01:49:47.400Z] [INFO] Fetched 2 job(s) {}
+ GET /apply 200 in 88ms

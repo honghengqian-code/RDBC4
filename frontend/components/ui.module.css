@@ -1,0 +1,249 @@
+/* Shared building blocks reused across JobList, JobForm and ApplicationForm. */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+.pillOpen {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.pillOpen::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.pillClosed {
+  background: var(--status-closed-bg);
+  color: var(--status-closed-ink);
+}
+.pillClosed::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-closed-ink);
+}
+
+.reqCode {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+
+.formShell {
+  max-width: 560px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.field .hint {
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+.field input,
+.field select,
+.field textarea {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 100%;
+}
+.field textarea {
+  resize: vertical;
+  min-height: 110px;
+  line-height: 1.5;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--accent);
+}
+.fieldError input,
+.fieldError select,
+.fieldError textarea {
+  border-color: var(--danger);
+}
+.errorMsg {
+  font-size: 0.75rem;
+  color: var(--danger);
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 560px) {
+  .row2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.primaryBtn {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: none;
+  border-radius: 8px;
+  padding: 11px 20px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: filter 150ms;
+}
+.primaryBtn:hover {
+  filter: brightness(1.08);
+}
+.primaryBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.ghostLink {
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ghostLink:hover {
+  color: var(--ink);
+}
+
+.successBanner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-soft-strong);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+}
+.successBanner svg {
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.successBanner strong {
+  display: block;
+  color: var(--accent-ink);
+  font-size: 0.9375rem;
+  margin-bottom: 2px;
+}
+.successBanner p {
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+}
+.successLink {
+  composes: ghostLink;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.errorBanner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+}
+.errorBanner strong {
+  display: block;
+  color: var(--danger);
+  font-size: 0.9375rem;
+  margin-bottom: 2px;
+}
+.errorBanner p {
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+
+.metaFaint {
+  color: var(--ink-faint);
+}
+
+.applyContextStatus {
+  composes: pill;
+  margin-bottom: 10px;
+}
+
+.applyContext {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 24px;
+}
+.applyContextTitle {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.applyContextMetaSpacing {
+  margin: 8px 0;
+}
+.applyContextDesc {
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+
+.panelHead {
+  margin-bottom: 26px;
+  max-width: 62ch;
+}
+.panelHead h2 {
+  font-size: 1.625rem;
+  margin-top: 6px;
+}
+.panelHead .dek {
+  color: var(--ink-soft);
+  margin-top: 8px;
+}
+.panelHead .dek code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}

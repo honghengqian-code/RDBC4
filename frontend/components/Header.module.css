@@ -1,0 +1,72 @@
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-bottom: 22px;
+  margin-bottom: 26px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.brandMark {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.brandMark span[aria-hidden] {
+  font-style: normal;
+  font-size: 1.1rem;
+}
+
+.brandTag {
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+  max-width: 46ch;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface-sunk);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.tabLink {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 7px 14px;
+  border-radius: 7px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  transition:
+    background 150ms,
+    color 150ms;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.tabLink:hover {
+  color: var(--ink);
+}
+.tabLinkActive {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.tabLinkActive:hover {
+  color: var(--on-accent);
+}

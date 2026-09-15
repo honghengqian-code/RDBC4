@@ -1,22 +1,33 @@
-2026-09-15 01:26:05,512 INFO django.utils.autoreload autoreload.run_with_reloader:667 - Watching for file changes with StatReloader
-2026-09-15 01:26:13,976 INFO jobs.models models.save:44 - Job created: id=1 title='Software Engineer' location='Remote'
-2026-09-15 01:26:13,978 INFO django.server basehttp.log_message:213 - "POST /api/jobs HTTP/1.1" 201 171
-2026-09-15 01:26:13,997 INFO jobs.views views.job_list_create:34 - Job list fetched: count=1 title='Software' location=None
-2026-09-15 01:26:14,002 INFO django.server basehttp.log_message:213 - "GET /api/jobs?title=Software HTTP/1.1" 200 173
-2026-09-15 01:26:14,024 INFO jobs.models models.save:70 - Application submitted: id=1 applicant='jane@example.com' job_id=1
-2026-09-15 01:26:14,025 INFO django.server basehttp.log_message:213 - "POST /api/applications HTTP/1.1" 201 165
-2026-09-15 01:26:14,034 WARNING jobs.views views.application_create:79 - Rejected application submission: invalid payload {'job': [ErrorDetail(string='This field is required.', code='required')], 'applicant_email': [ErrorDetail(string='This field is required.', code='required')], 'cover_letter': [ErrorDetail(string='This field is required.', code='required')]}
-2026-09-15 01:26:14,036 WARNING django.request log.log_response:253 - Bad Request: /api/applications
-2026-09-15 01:26:14,036 WARNING django.server basehttp.log_message:213 - "POST /api/applications HTTP/1.1" 400 124
-2026-09-15 01:26:14,051 INFO jobs.views views.job_applications:109 - Applications fetched for job_id=1: count=1
-2026-09-15 01:26:14,057 INFO django.server basehttp.log_message:213 - "GET /api/jobs/1/applications HTTP/1.1" 200 167
-2026-09-15 01:29:49,267 INFO django.utils.autoreload autoreload.trigger_reload:265 - /home/reluvate/RDBC/RDBC4/backend/jobs/views.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-September 15, 2026 - 01:26:05
-Django version 5.1.15, using settings 'myproject.settings'
-Starting development server at http://0.0.0.0:8001/
-Quit the server with CONTROL-C.
-
-2026-09-15 01:29:49,490 INFO django.utils.autoreload autoreload.run_with_reloader:667 - Watching for file changes with StatReloader
+2026-09-15 01:47:01,100 INFO django.utils.autoreload autoreload.run_with_reloader:667 - Watching for file changes with StatReloader
+2026-09-15 01:47:02,830 INFO jobs.views views.job_list_create:34 - Job list fetched: count=1 title=None location=None
+2026-09-15 01:47:02,836 INFO django.server basehttp.log_message:213 - "GET /api/jobs HTTP/1.1" 200 173
+2026-09-15 01:47:06,864 INFO jobs.views views.job_list_create:34 - Job list fetched: count=1 title=None location=None
+2026-09-15 01:47:06,867 INFO django.server basehttp.log_message:213 - "GET /api/jobs HTTP/1.1" 200 173
+2026-09-15 01:47:40,940 INFO jobs.views views.job_list_create:34 - Job list fetched: count=1 title=None location=None
+2026-09-15 01:47:40,942 INFO django.server basehttp.log_message:213 - "GET /api/jobs HTTP/1.1" 200 173
+2026-09-15 01:47:51,735 INFO django.server basehttp.log_message:213 - "GET /api/jobs/1 HTTP/1.1" 200 171
+2026-09-15 01:47:51,736 INFO jobs.views views.job_applications:109 - Applications fetched for job_id=1: count=1
+2026-09-15 01:47:51,738 INFO django.server basehttp.log_message:213 - "GET /api/jobs/1/applications HTTP/1.1" 200 167
+2026-09-15 01:47:51,793 INFO jobs.views views.job_detail:68 - Job not found: id=999
+2026-09-15 01:47:51,794 INFO jobs.views views.job_applications:99 - Applications requested for missing job: id=999
+2026-09-15 01:47:51,795 WARNING django.request log.log_response:253 - Not Found: /api/jobs/999
+2026-09-15 01:47:51,795 WARNING django.request log.log_response:253 - Not Found: /api/jobs/999/applications
+2026-09-15 01:47:51,795 WARNING django.server basehttp.log_message:213 - "GET /api/jobs/999 HTTP/1.1" 404 27
+2026-09-15 01:47:51,796 WARNING django.server basehttp.log_message:213 - "GET /api/jobs/999/applications HTTP/1.1" 404 27
+2026-09-15 01:47:51,853 INFO jobs.views views.job_list_create:34 - Job list fetched: count=0 title='Nope' location=None
+2026-09-15 01:47:51,855 INFO django.server basehttp.log_message:213 - "GET /api/jobs?title=Nope HTTP/1.1" 200 2
+2026-09-15 01:48:41,180 INFO jobs.models models.save:44 - Job created: id=2 title='Product Designer' location='Berlin, DE (Hybrid)'
+2026-09-15 01:48:41,181 INFO django.server basehttp.log_message:213 - "POST /api/jobs HTTP/1.1" 201 211
+2026-09-15 01:48:41,233 INFO jobs.models models.save:70 - Application submitted: id=2 applicant='alex@example.com' job_id=1
+2026-09-15 01:48:41,234 INFO django.server basehttp.log_message:213 - "POST /api/applications HTTP/1.1" 201 169
+2026-09-15 01:48:51,315 INFO jobs.views views.job_list_create:34 - Job list fetched: count=2 title=None location=None
+2026-09-15 01:48:51,317 INFO django.server basehttp.log_message:213 - "GET /api/jobs HTTP/1.1" 200 385
+2026-09-15 01:49:08,930 INFO jobs.views views.job_list_create:34 - Job list fetched: count=2 title=None location=None
+2026-09-15 01:49:08,933 INFO django.server basehttp.log_message:213 - "GET /api/jobs HTTP/1.1" 200 385
+2026-09-15 01:49:13,466 INFO django.server basehttp.log_message:213 - "GET /api/jobs/1 HTTP/1.1" 200 171
+2026-09-15 01:49:13,467 INFO jobs.views views.job_applications:109 - Applications fetched for job_id=1: count=2
+2026-09-15 01:49:13,469 INFO django.server basehttp.log_message:213 - "GET /api/jobs/1/applications HTTP/1.1" 200 337
+2026-09-15 01:49:40,811 INFO jobs.views views.job_list_create:34 - Job list fetched: count=2 title=None location=None
+2026-09-15 01:49:40,814 INFO django.server basehttp.log_message:213 - "GET /api/jobs HTTP/1.1" 200 385
+2026-09-15 01:49:47,395 INFO jobs.views views.job_list_create:34 - Job list fetched: count=2 title=None location=None
+2026-09-15 01:49:47,397 INFO django.server basehttp.log_message:213 - "GET /api/jobs HTTP/1.1" 200 385
