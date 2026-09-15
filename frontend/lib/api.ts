@@ -13,10 +13,16 @@ import type {
   PaginatedResponse,
 } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+// Browser requests need the public address (through nginx); Server Component
+// fetches run inside the frontend container and should hit the backend
+// directly over the Docker network via API_URL, when set (see docker-compose.yml).
+// Outside Docker, both resolve to the same place and API_URL is unset.
+const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+const API_URL = typeof window === "undefined" ? (process.env.API_URL ?? PUBLIC_API_URL) : PUBLIC_API_URL;
 
-/** Origin the API is served from, without the `/api` suffix — attachment `file` paths are relative to this. */
-export const MEDIA_BASE_URL = API_URL.replace(/\/api\/?$/, "");
+/** Origin the API is served from, without the `/api` suffix — attachment `file` paths are relative to this.
+ *  Always the public address: these paths are rendered into the page and followed by the browser. */
+export const MEDIA_BASE_URL = PUBLIC_API_URL.replace(/\/api\/?$/, "");
 
 /** Thrown for a well-formed 4xx response; carries DRF's field-level errors. */
 export class ValidationError extends Error {
