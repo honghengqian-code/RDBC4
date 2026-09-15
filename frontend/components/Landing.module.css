@@ -1,0 +1,90 @@
+.hero {
+  padding: 4px 0 40px;
+  max-width: 620px;
+}
+.headline {
+  font-style: italic;
+  font-size: clamp(1.875rem, 4.5vw, 2.625rem);
+  line-height: 1.16;
+  margin-top: 10px;
+}
+.dek {
+  color: var(--ink-soft);
+  margin-top: 14px;
+  font-size: 1rem;
+  max-width: 54ch;
+}
+
+.heroStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 24px;
+  padding: 7px 13px;
+  background: var(--accent-soft);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent-ink);
+}
+.heroStat strong {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.paths {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 640px) {
+  .paths {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pathCard {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px 22px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pathIcon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+
+.pathCard h2 {
+  font-size: 1.125rem;
+  margin-bottom: 8px;
+}
+.pathCard p {
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+  flex: 1;
+  margin-bottom: 18px;
+}
+
+.pathActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ctaBtn {
+  composes: primaryBtn from "./ui.module.css";
+  text-decoration: none;
+  display: inline-block;
+}

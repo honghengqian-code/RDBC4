@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
 import Header from "@/components/Header";
+import { AuthProvider } from "@/lib/auth";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -38,10 +39,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${newsreader.variable} ${plexSans.variable} ${plexMono.variable}`}>
       <body>
-        <div className="shell">
-          <Header />
-          <main style={{ marginTop: 28 }}>{children}</main>
-        </div>
+        <AuthProvider>
+          <div className="shell">
+            <Header />
+            <main style={{ marginTop: 28 }}>{children}</main>
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

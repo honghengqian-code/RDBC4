@@ -9,7 +9,7 @@ export default function NotFound() {
         <h2>Role not found</h2>
         <p className={ui.dek}>It may have been removed, or the link might be off.</p>
       </div>
-      <Link href="/" className={ui.successLink}>
+      <Link href="/jobs" className={ui.successLink}>
         Back to Browse jobs →
       </Link>
     </section>

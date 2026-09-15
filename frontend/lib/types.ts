@@ -8,6 +8,13 @@ export interface Job {
   location: string;
   status: JobStatus;
   posted_at: string;
+  applicant_count: number;
+}
+
+export interface Attachment {
+  id: number;
+  file: string;
+  uploaded_at: string;
 }
 
 export interface Application {
@@ -15,7 +22,8 @@ export interface Application {
   job: number;
   applicant_name: string;
   applicant_email: string;
-  cover_letter: string;
+  description: string;
+  attachments: Attachment[];
   applied_at: string;
 }
 
@@ -30,8 +38,32 @@ export interface NewApplicationInput {
   job: number;
   applicant_name: string;
   applicant_email: string;
-  cover_letter: string;
+  description: string;
+  attachments?: File[];
 }
 
 /** Shape of a DRF validation-error response: { field: ["message", ...] }. */
 export type FieldErrors = Record<string, string[]>;
+
+export interface Employer {
+  id: number;
+  name: string;
+  contact_email: string;
+  created_at: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  employer: Employer;
+}
+
+export interface NewEmployerInput {
+  name: string;
+  contact_email: string;
+  password: string;
+}
+
+export interface LoginInput {
+  contact_email: string;
+  password: string;
+}

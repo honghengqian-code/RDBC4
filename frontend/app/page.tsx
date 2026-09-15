@@ -1,47 +1,18 @@
-import JobList from "@/components/JobList";
-import JobSearchForm from "@/components/JobSearchForm";
-import ui from "@/components/ui.module.css";
+import Landing from "@/components/Landing";
 import { getJobs } from "@/lib/api";
 import { logger } from "@/lib/logger";
-import type { Job } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default async function BrowseJobsPage({
-  searchParams,
-}: {
-  searchParams: { title?: string; location?: string };
-}) {
-  let jobs: Job[] = [];
-  let loadError: string | null = null;
+export default async function HomePage() {
+  let openCount = 0;
 
   try {
-    jobs = await getJobs({ title: searchParams.title, location: searchParams.location });
+    const jobs = await getJobs();
+    openCount = jobs.filter((job) => job.status === "open").length;
   } catch (error) {
-    logger.error("Failed to load jobs for the Browse page", error);
-    loadError = error instanceof Error ? error.message : "Could not load jobs.";
+    logger.error("Failed to load open-role count for the landing page", error);
   }
 
-  return (
-    <section>
-      <div className={ui.panelHead}>
-        <p className="eyebrow">Job seekers</p>
-        <h2>Open roles</h2>
-        <p className={ui.dek}>Search by title or location to find something that fits.</p>
-      </div>
-
-      <JobSearchForm />
-
-      {loadError ? (
-        <div className={ui.errorBanner}>
-          <div>
-            <strong>Couldn&apos;t load jobs</strong>
-            <p>{loadError}</p>
-          </div>
-        </div>
-      ) : (
-        <JobList jobs={jobs} />
-      )}
-    </section>
-  );
+  return <Landing openCount={openCount} />;
 }

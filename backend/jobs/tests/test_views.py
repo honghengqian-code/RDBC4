@@ -1,10 +1,14 @@
 from unittest.mock import patch
 
+from django.contrib.auth.models import User
+from django.core import mail
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import DatabaseError
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from jobs.models import Application, Job
+from jobs.models import Application, Attachment, Employer, Job
 
 
 class JobListCreateAPITest(APITestCase):
@@ -18,7 +22,15 @@ class JobListCreateAPITest(APITestCase):
             title='Product Designer', description='Design flows', location='New York',
         )
 
+        user = User.objects.create_user(username='hr@acme.test', email='hr@acme.test', password='hunter22')
+        self.employer = Employer.objects.create(user=user, name='Acme Corp', contact_email='hr@acme.test')
+        self.token = Token.objects.create(user=user)
+
+    def authed(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
     def test_create_job_success(self):
+        self.authed()
         payload = {
             'title': 'Software Engineer',
             'description': 'Develop amazing features',
@@ -29,9 +41,31 @@ class JobListCreateAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['title'], 'Software Engineer')
         self.assertEqual(response.data['status'], 'open')
+        self.assertEqual(response.data['employer'], self.employer.id)
         self.assertEqual(Job.objects.count(), 3)
 
+    def test_create_job_ignores_client_supplied_employer(self):
+        other_user = User.objects.create_user(username='x@x.test', email='x@x.test', password='hunter22')
+        other_employer = Employer.objects.create(user=other_user, name='Other Co', contact_email='x@x.test')
+        self.authed()
+        payload = {
+            'title': 'Software Engineer', 'description': 'Develop', 'location': 'Remote',
+            'employer': other_employer.id,
+        }
+        response = self.client.post(self.url, payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['employer'], self.employer.id)
+
+    def test_create_job_requires_authentication(self):
+        payload = {'title': 'Software Engineer', 'description': 'Develop', 'location': 'Remote'}
+        response = self.client.post(self.url, payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(Job.objects.count(), 2)
+
     def test_create_job_missing_required_fields_returns_400(self):
+        self.authed()
         response = self.client.post(self.url, {'title': 'Incomplete'}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -40,6 +74,7 @@ class JobListCreateAPITest(APITestCase):
         self.assertEqual(Job.objects.count(), 2)
 
     def test_create_job_database_error_returns_503(self):
+        self.authed()
         payload = {'title': 'X', 'description': 'Y', 'location': 'Z'}
         with patch('jobs.serializers.JobSerializer.save', side_effect=DatabaseError('down')):
             response = self.client.post(self.url, payload, format='json')
@@ -121,7 +156,7 @@ class ApplicationCreateAPITest(APITestCase):
             'job': self.job.pk,
             'applicant_name': 'Jane Doe',
             'applicant_email': 'jane@example.com',
-            'cover_letter': 'I would love this role.',
+            'description': 'I would love this role.',
         }
         response = self.client.post(self.url, payload, format='json')
 
@@ -129,6 +164,91 @@ class ApplicationCreateAPITest(APITestCase):
         self.assertEqual(response.data['applicant_name'], 'Jane Doe')
         self.assertEqual(Application.objects.count(), 1)
         self.assertEqual(Application.objects.first().job, self.job)
+        self.assertEqual(response.data['attachments'], [])
+
+    def test_submit_application_emails_the_applicant_a_confirmation(self):
+        payload = {
+            'job': self.job.pk,
+            'applicant_name': 'Jane Doe',
+            'applicant_email': 'jane@example.com',
+            'description': 'I would love this role.',
+        }
+        self.client.post(self.url, payload, format='json')
+
+        # No employer on file for self.job, so only the applicant is emailed.
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['jane@example.com'])
+
+    def test_submit_application_also_notifies_the_employer_when_one_is_on_file(self):
+        employer = Employer.objects.create(name='Acme Corp', contact_email='hr@acme.test')
+        staffed_job = Job.objects.create(
+            title='Product Designer', description='Design flows', location='NYC', employer=employer,
+        )
+        payload = {
+            'job': staffed_job.pk,
+            'applicant_name': 'Jane Doe',
+            'applicant_email': 'jane@example.com',
+            'description': 'I would love this role.',
+        }
+        self.client.post(self.url, payload, format='json')
+
+        self.assertEqual(len(mail.outbox), 2)
+        recipients = {recipient for sent in mail.outbox for recipient in sent.to}
+        self.assertEqual(recipients, {'jane@example.com', 'hr@acme.test'})
+
+    def test_submit_application_with_one_attachment_success(self):
+        resume = SimpleUploadedFile('resume.pdf', b'%PDF-1.4 fake resume contents', content_type='application/pdf')
+        payload = {
+            'job': self.job.pk,
+            'applicant_name': 'Jane Doe',
+            'applicant_email': 'jane@example.com',
+            'description': 'Please see attached resume.',
+            'attachments': [resume],
+        }
+        response = self.client.post(self.url, payload, format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        application = Application.objects.get(pk=response.data['id'])
+        self.assertEqual(application.attachments.count(), 1)
+        self.assertEqual(len(response.data['attachments']), 1)
+        for attachment in application.attachments.all():
+            attachment.file.delete(save=False)
+
+    def test_submit_application_with_multiple_attachments_success(self):
+        resume = SimpleUploadedFile('resume.pdf', b'%PDF-1.4 resume', content_type='application/pdf')
+        portfolio = SimpleUploadedFile('portfolio.pdf', b'%PDF-1.4 portfolio', content_type='application/pdf')
+        payload = {
+            'job': self.job.pk,
+            'applicant_name': 'Jane Doe',
+            'applicant_email': 'jane@example.com',
+            'description': 'Please see attached files.',
+            'attachments': [resume, portfolio],
+        }
+        response = self.client.post(self.url, payload, format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        application = Application.objects.get(pk=response.data['id'])
+        self.assertEqual(application.attachments.count(), 2)
+        self.assertEqual(len(response.data['attachments']), 2)
+        for attachment in application.attachments.all():
+            attachment.file.delete(save=False)
+
+    def test_submit_application_rejects_oversized_attachment(self):
+        ok_file = SimpleUploadedFile('resume.pdf', b'small', content_type='application/pdf')
+        oversized = SimpleUploadedFile('big.pdf', b'x' * (5 * 1024 * 1024 + 1), content_type='application/pdf')
+        payload = {
+            'job': self.job.pk,
+            'applicant_name': 'Jane Doe',
+            'applicant_email': 'jane@example.com',
+            'description': 'Please see attached resume.',
+            'attachments': [ok_file, oversized],
+        }
+        response = self.client.post(self.url, payload, format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('attachments', response.data)
+        self.assertEqual(Application.objects.count(), 0)
+        self.assertEqual(Attachment.objects.count(), 0)
 
     def test_submit_application_missing_fields_returns_400(self):
         response = self.client.post(self.url, {'applicant_name': 'Jane Doe'}, format='json')
@@ -142,7 +262,7 @@ class ApplicationCreateAPITest(APITestCase):
             'job': 9999,
             'applicant_name': 'Jane Doe',
             'applicant_email': 'jane@example.com',
-            'cover_letter': 'Cover letter text.',
+            'description': 'Application description.',
         }
         response = self.client.post(self.url, payload, format='json')
 
@@ -154,7 +274,7 @@ class ApplicationCreateAPITest(APITestCase):
             'job': self.job.pk,
             'applicant_name': 'Jane Doe',
             'applicant_email': 'jane@example.com',
-            'cover_letter': 'Cover letter text.',
+            'description': 'Application description.',
         }
         with patch('jobs.serializers.ApplicationSerializer.save', side_effect=DatabaseError('down')):
             response = self.client.post(self.url, payload, format='json')
@@ -164,35 +284,109 @@ class ApplicationCreateAPITest(APITestCase):
 
 class JobApplicationsListAPITest(APITestCase):
     def setUp(self):
+        owner = User.objects.create_user(username='hr@acme.test', email='hr@acme.test', password='hunter22')
+        self.employer = Employer.objects.create(user=owner, name='Acme Corp', contact_email='hr@acme.test')
+        self.token = Token.objects.create(user=owner)
+
+        other_owner = User.objects.create_user(username='x@x.test', email='x@x.test', password='hunter22')
+        other_employer = Employer.objects.create(user=other_owner, name='Other Co', contact_email='x@x.test')
+        self.other_token = Token.objects.create(user=other_owner)
+
         self.job = Job.objects.create(
-            title='Backend Developer', description='Build APIs', location='Remote',
+            title='Backend Developer', description='Build APIs', location='Remote', employer=self.employer,
         )
         self.other_job = Job.objects.create(
-            title='Product Designer', description='Design flows', location='New York',
+            title='Product Designer', description='Design flows', location='New York', employer=other_employer,
         )
         Application.objects.create(
             job=self.job, applicant_name='Jane Doe',
-            applicant_email='jane@example.com', cover_letter='Cover letter.',
+            applicant_email='jane@example.com', description='Application description.',
         )
         Application.objects.create(
             job=self.other_job, applicant_name='John Smith',
-            applicant_email='john@example.com', cover_letter='Cover letter.',
+            applicant_email='john@example.com', description='Application description.',
         )
 
+    def authed(self, token):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
     def test_list_applications_for_job_returns_only_its_own(self):
+        self.authed(self.token)
         response = self.client.get(f'/api/jobs/{self.job.pk}/applications')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['applicant_name'], 'Jane Doe')
 
+    def test_list_applications_requires_authentication(self):
+        response = self.client.get(f'/api/jobs/{self.job.pk}/applications')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_list_applications_rejects_non_owning_employer(self):
+        self.authed(self.other_token)
+        response = self.client.get(f'/api/jobs/{self.job.pk}/applications')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_list_applications_for_missing_job_returns_404(self):
+        self.authed(self.token)
         response = self.client.get('/api/jobs/9999/applications')
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_list_applications_job_lookup_database_error_returns_503(self):
+        self.authed(self.token)
+        with patch('jobs.models.Job.objects.filter', side_effect=DatabaseError('down')):
+            response = self.client.get(f'/api/jobs/{self.job.pk}/applications')
+
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+
     def test_list_applications_database_error_returns_503(self):
+        self.authed(self.token)
         with patch('jobs.models.Application.objects.filter', side_effect=DatabaseError('down')):
             response = self.client.get(f'/api/jobs/{self.job.pk}/applications')
+
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class EmployerJobsAPITest(APITestCase):
+    def setUp(self):
+        owner = User.objects.create_user(username='hr@acme.test', email='hr@acme.test', password='hunter22')
+        self.employer = Employer.objects.create(user=owner, name='Acme Corp', contact_email='hr@acme.test')
+        self.token = Token.objects.create(user=owner)
+
+        other_owner = User.objects.create_user(username='x@x.test', email='x@x.test', password='hunter22')
+        other_employer = Employer.objects.create(user=other_owner, name='Other Co', contact_email='x@x.test')
+
+        Job.objects.create(title='Backend Developer', description='Build APIs', location='Remote', employer=self.employer)
+        Job.objects.create(title='Product Designer', description='Design flows', location='NYC', employer=other_employer)
+
+    def test_lists_only_own_jobs(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get('/api/employer/jobs')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['title'], 'Backend Developer')
+
+    def test_requires_authentication(self):
+        response = self.client.get('/api/employer/jobs')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_rejects_user_without_employer_profile(self):
+        plain_user = User.objects.create_user(username='plain@x.test', email='plain@x.test', password='hunter22')
+        plain_token = Token.objects.create(user=plain_user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {plain_token.key}')
+
+        response = self.client.get('/api/employer/jobs')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_database_error_returns_503(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        with patch('jobs.models.Job.objects.filter', side_effect=DatabaseError('down')):
+            response = self.client.get('/api/employer/jobs')
 
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)

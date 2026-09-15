@@ -61,7 +61,7 @@ export default function JobSearchForm() {
           autoComplete="off"
         />
       </div>
-      <Link href="/post" className={styles.postCta}>
+      <Link href="/employer" className={styles.postCta}>
         + Post a role
       </Link>
     </div>

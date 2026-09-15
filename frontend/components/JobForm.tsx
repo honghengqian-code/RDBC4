@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ApiError, createJob, ValidationError } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import type { FieldErrors, JobStatus } from "@/lib/types";
 import { CheckIcon } from "./icons";
@@ -17,6 +19,7 @@ type FormState = {
 const EMPTY_FORM: FormState = { title: "", location: "", status: "open", description: "" };
 
 export default function JobForm() {
+  const { token } = useAuth();
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -39,6 +42,11 @@ export default function JobForm() {
     event.preventDefault();
     setSubmitError(null);
 
+    if (!token) {
+      setSubmitError("You've been signed out — please sign in again.");
+      return;
+    }
+
     const localErrors = validateLocally();
     if (Object.keys(localErrors).length > 0) {
       setFieldErrors(localErrors);
@@ -49,7 +57,7 @@ export default function JobForm() {
     setSubmitting(true);
 
     try {
-      const job = await createJob(form);
+      const job = await createJob(form, token);
       setPosted({ title: job.title, status: job.status });
       setForm(EMPTY_FORM);
     } catch (error) {
@@ -87,6 +95,9 @@ export default function JobForm() {
                 ? "now appears at the top of Browse jobs, open for applications."
                 : "was saved as Closed, so it won't accept applications yet."}
             </p>
+            <Link href="/employer/dashboard" className={ui.successLink}>
+              Back to your roles →
+            </Link>
           </div>
         </div>
       )}

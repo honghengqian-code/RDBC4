@@ -1,0 +1,85 @@
+.backLink {
+  display: inline-block;
+  margin-bottom: 14px;
+}
+
+.emptyState {
+  padding: 40px 4px;
+  color: var(--ink-faint);
+  font-size: 0.875rem;
+  border-top: 1px solid var(--line);
+  margin-top: 22px;
+}
+
+.applicantRows {
+  border-top: 1px solid var(--line);
+  margin-top: 22px;
+}
+
+.applicantRow {
+  padding: 18px 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.applicantTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.applicantName {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin-right: 10px;
+}
+
+.applicantEmail {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+}
+
+.applicantWhen {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.applicantDesc {
+  color: var(--ink-soft);
+  font-size: 0.875rem;
+  max-width: 68ch;
+}
+
+.attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.attachmentChip {
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  color: var(--ink);
+  text-decoration: none;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.attachmentChip:hover {
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+}

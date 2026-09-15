@@ -1,0 +1,88 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 260px) 1fr;
+  column-gap: 28px;
+  row-gap: 14px;
+  align-items: start;
+}
+.contextCell {
+  grid-column: 1;
+  grid-row: 1;
+}
+.topFieldsCell {
+  grid-column: 2;
+  grid-row: 1;
+}
+.bottomFieldsCell {
+  grid-column: 2;
+  grid-row: 2;
+}
+@media (max-width: 720px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .contextCell,
+  .topFieldsCell,
+  .bottomFieldsCell {
+    grid-column: 1;
+  }
+  .contextCell {
+    grid-row: 1;
+  }
+  .topFieldsCell {
+    grid-row: 2;
+  }
+  .bottomFieldsCell {
+    grid-row: 3;
+  }
+}
+
+.attachmentList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  /* exactly 2 rows (~34px each) plus the gap between them; a 3rd row scrolls */
+  max-height: 76px;
+  overflow-y: auto;
+}
+
+.attachmentRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 6px 5px 10px;
+  font-size: 0.75rem;
+}
+
+.attachmentName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachmentSize {
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.attachmentRemove {
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 3px 5px;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+.attachmentRemove:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+}

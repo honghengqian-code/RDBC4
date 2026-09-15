@@ -1,11 +1,19 @@
 import logging
 
+from django.contrib.auth.models import User
 from django.db import DatabaseError, models
 
 logger = logging.getLogger(__name__)
 
+MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024  # 5MB, enforced in views.py before any DB write
+
 
 class Employer(models.Model):
+    # Nullable so legacy/admin-created employers without a login account still work.
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name='employer_profile',
+        null=True, blank=True,
+    )
     name = models.CharField(max_length=255)
     contact_email = models.EmailField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -50,7 +58,7 @@ class Application(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
     applicant_name = models.CharField(max_length=255)
     applicant_email = models.EmailField()
-    cover_letter = models.TextField()
+    description = models.TextField()
     applied_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -70,4 +78,29 @@ class Application(models.Model):
                 logger.info(
                     'Application submitted: id=%s applicant=%r job_id=%s',
                     self.pk, self.applicant_email, self.job_id,
+                )
+
+
+class Attachment(models.Model):
+    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='attachments')
+    file = models.FileField(upload_to='applications/attachments/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.file.name
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        try:
+            super().save(*args, **kwargs)
+        except DatabaseError:
+            logger.exception(
+                'Failed to save attachment for application_id=%s', self.application_id,
+            )
+            raise
+        else:
+            if is_new:
+                logger.info(
+                    'Attachment uploaded: id=%s application_id=%s file=%r',
+                    self.pk, self.application_id, self.file.name,
                 )

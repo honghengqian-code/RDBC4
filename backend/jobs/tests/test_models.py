@@ -1,9 +1,10 @@
 from unittest.mock import patch
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import DatabaseError
 from django.test import TestCase
 
-from jobs.models import Application, Employer, Job
+from jobs.models import Application, Attachment, Employer, Job
 
 
 class EmployerModelTest(TestCase):
@@ -77,13 +78,16 @@ class ApplicationModelTest(TestCase):
             job=self.job,
             applicant_name='Jane Doe',
             applicant_email='jane@example.com',
-            cover_letter='I would love this role.',
+            description='I would love this role.',
         )
 
     def test_application_creation(self):
         self.assertEqual(self.application.applicant_name, 'Jane Doe')
         self.assertEqual(self.application.applicant_email, 'jane@example.com')
         self.assertEqual(self.application.job, self.job)
+
+    def test_application_has_no_attachments_by_default(self):
+        self.assertEqual(self.application.attachments.count(), 0)
 
     def test_application_applied_at_is_set_automatically(self):
         self.assertIsNotNone(self.application.applied_at)
@@ -101,7 +105,7 @@ class ApplicationModelTest(TestCase):
                 job=self.job,
                 applicant_name='John Smith',
                 applicant_email='john@example.com',
-                cover_letter='Looking forward to this.',
+                description='Looking forward to this.',
             )
         self.assertTrue(any('Application submitted' in message for message in captured.output))
 
@@ -110,7 +114,7 @@ class ApplicationModelTest(TestCase):
             job=self.job,
             applicant_name='Broken Applicant',
             applicant_email='broken@example.com',
-            cover_letter='desc',
+            description='desc',
         )
         with patch(
             'django.db.models.Model.save', side_effect=DatabaseError('connection lost'),
@@ -119,3 +123,57 @@ class ApplicationModelTest(TestCase):
                 with self.assertRaises(DatabaseError):
                     application.save()
         self.assertTrue(any('Failed to save application' in message for message in captured.output))
+
+
+class AttachmentModelTest(TestCase):
+    def setUp(self):
+        self.job = Job.objects.create(title='Backend Developer', description='Build APIs', location='Remote')
+        self.application = Application.objects.create(
+            job=self.job,
+            applicant_name='Jordan Lee',
+            applicant_email='jordan@example.com',
+            description='Please see attached resume.',
+        )
+
+    def _resume(self, name='resume.pdf'):
+        return SimpleUploadedFile(name, b'%PDF-1.4 fake resume contents', content_type='application/pdf')
+
+    def test_attachment_creation(self):
+        attachment = Attachment.objects.create(application=self.application, file=self._resume())
+        self.assertTrue(attachment.file.name.startswith('applications/attachments/resume'))
+        self.assertEqual(self.application.attachments.count(), 1)
+        attachment.file.delete(save=False)
+
+    def test_application_can_have_multiple_attachments(self):
+        Attachment.objects.create(application=self.application, file=self._resume('resume.pdf'))
+        Attachment.objects.create(application=self.application, file=self._resume('cover.pdf'))
+        self.assertEqual(self.application.attachments.count(), 2)
+        for attachment in self.application.attachments.all():
+            attachment.file.delete(save=False)
+
+    def test_attachment_is_deleted_when_application_is_deleted(self):
+        attachment = Attachment.objects.create(application=self.application, file=self._resume())
+        self.application.delete()
+        self.assertEqual(Attachment.objects.count(), 0)
+        attachment.file.delete(save=False)
+
+    def test_attachment_str_is_file_name(self):
+        attachment = Attachment.objects.create(application=self.application, file=self._resume())
+        self.assertIn('resume', str(attachment))
+        attachment.file.delete(save=False)
+
+    def test_attachment_save_logs_info_on_success(self):
+        with self.assertLogs('jobs', level='INFO') as captured:
+            attachment = Attachment.objects.create(application=self.application, file=self._resume())
+        self.assertTrue(any('Attachment uploaded' in message for message in captured.output))
+        attachment.file.delete(save=False)
+
+    def test_attachment_save_logs_and_reraises_on_database_error(self):
+        attachment = Attachment(application=self.application, file=self._resume())
+        with patch(
+            'django.db.models.Model.save', side_effect=DatabaseError('connection lost'),
+        ):
+            with self.assertLogs('jobs', level='ERROR') as captured:
+                with self.assertRaises(DatabaseError):
+                    attachment.save()
+        self.assertTrue(any('Failed to save attachment' in message for message in captured.output))

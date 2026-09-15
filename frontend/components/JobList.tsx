@@ -5,7 +5,13 @@ import { LocationIcon } from "./icons";
 import styles from "./JobList.module.css";
 import ui from "./ui.module.css";
 
-export default function JobList({ jobs }: { jobs: Job[] }) {
+export default function JobList({
+  jobs,
+  variant = "seeker",
+}: {
+  jobs: Job[];
+  variant?: "seeker" | "employer";
+}) {
   return (
     <>
       <p className={styles.resultCount}>
@@ -36,7 +42,11 @@ export default function JobList({ jobs }: { jobs: Job[] }) {
                 </div>
               </div>
               <div className={styles.jobRowSide}>
-                {job.status === "open" ? (
+                {variant === "employer" ? (
+                  <Link href={`/jobs/${job.id}/applicants`} className={styles.applyBtn}>
+                    View applicants
+                  </Link>
+                ) : job.status === "open" ? (
                   <Link href={`/jobs/${job.id}/apply`} className={styles.applyBtn}>
                     View &amp; apply
                   </Link>

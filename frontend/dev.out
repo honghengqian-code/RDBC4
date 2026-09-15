@@ -120,3 +120,148 @@ TypeError: __webpack_modules__[moduleId] is not a function
  GET /apply 500 in 1288ms
 [2026-09-15T01:49:47.400Z] [INFO] Fetched 2 job(s) {}
  GET /apply 200 in 88ms
+ ⨯ Error: Cannot find module './183.js'
+Require stack:
+- /home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js
+- /home/reluvate/RDBC/RDBC4/frontend/.next/server/pages/_document.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/load-components.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/build/utils.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/hot-middleware.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-server.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require-hook.js:55:36
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+    at Module._load (node:internal/modules/cjs/loader:1192:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Module.require (node:internal/modules/cjs/loader:1463:12)
+    at mod.require (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:147:16)
+    at __webpack_require__.f.require (/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js:198:28)
+    at /home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js:111:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js:162:22)
+    at /home/reluvate/RDBC/RDBC4/frontend/.next/server/app/page.js:1:12605
+    at Object.<anonymous> (/home/reluvate/RDBC/RDBC4/frontend/.next/server/app/page.js:1:12646)
+    at Module._compile (node:internal/modules/cjs/loader:1705:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1838:10)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)
+    at Module._load (node:internal/modules/cjs/loader:1263:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Module.require (node:internal/modules/cjs/loader:1463:12)
+    at mod.require (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:147:16)
+    at requirePage (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require.js:109:84)
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/load-components.js:103:84
+    at async loadComponentsImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/load-components.js:103:26)
+    at async DevServer.findPageComponentsImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/next-server.js:714:36)
+    at async DevServer.findPageComponents (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/next-dev-server.js:577:20)
+    at async DevServer.renderPageComponent (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/base-server.js:1910:24)
+    at async DevServer.renderToResponseImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/base-server.js:818:17)
+    at async /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/.next/server/pages/_document.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/load-components.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/build/utils.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-server.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/start-server.js'
+  ],
+  page: '/'
+}
+ GET / 500 in 26ms
+ ⨯ Error: Cannot find module './183.js'
+Require stack:
+- /home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js
+- /home/reluvate/RDBC/RDBC4/frontend/.next/server/pages/_document.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/load-components.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/build/utils.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/hot-middleware.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-server.js
+- /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require-hook.js:55:36
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+    at Module._load (node:internal/modules/cjs/loader:1192:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Module.require (node:internal/modules/cjs/loader:1463:12)
+    at mod.require (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:147:16)
+    at __webpack_require__.f.require (/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js:198:28)
+    at /home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js:111:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js:110:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js:162:22)
+    at /home/reluvate/RDBC/RDBC4/frontend/.next/server/app/page.js:1:12605
+    at Object.<anonymous> (/home/reluvate/RDBC/RDBC4/frontend/.next/server/app/page.js:1:12646)
+    at Module._compile (node:internal/modules/cjs/loader:1705:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1838:10)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)
+    at Module._load (node:internal/modules/cjs/loader:1263:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+    at Module.require (node:internal/modules/cjs/loader:1463:12)
+    at mod.require (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:147:16)
+    at requirePage (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require.js:109:84)
+    at /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/load-components.js:103:84
+    at async loadComponentsImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/load-components.js:103:26)
+    at async DevServer.findPageComponentsImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/next-server.js:714:36)
+    at async DevServer.findPageComponents (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/next-dev-server.js:577:20)
+    at async DevServer.renderPageComponent (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/base-server.js:1910:24)
+    at async DevServer.renderToResponseImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/base-server.js:1962:32)
+    at async DevServer.pipeImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/base-server.js:922:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/base-server.js:818:17)
+    at async /home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-server.js:179:21)
+    at async handleRequest (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-server.js:359:24)
+    at async requestHandlerImpl (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-server.js:383:13)
+    at async Server.requestListener (/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/home/reluvate/RDBC/RDBC4/frontend/.next/server/webpack-runtime.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/.next/server/pages/_document.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/require.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/load-components.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/build/utils.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/router-server.js',
+    '/home/reluvate/RDBC/RDBC4/frontend/node_modules/next/dist/server/lib/start-server.js'
+  ],
+  page: '/'
+}
+ GET / 500 in 22ms
+[?25h

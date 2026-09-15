@@ -1,0 +1,9 @@
+.actions {
+  margin-bottom: 22px;
+}
+
+.postCta {
+  composes: primaryBtn from "./ui.module.css";
+  text-decoration: none;
+  display: inline-block;
+}

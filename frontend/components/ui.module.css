@@ -47,7 +47,7 @@
 .fieldGroup {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
 }
 
 .field {
@@ -75,7 +75,7 @@
 }
 .field textarea {
   resize: vertical;
-  min-height: 110px;
+  min-height: 76px;
   line-height: 1.5;
 }
 .field input:focus,
@@ -93,6 +93,24 @@
   color: var(--danger);
 }
 
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+}
+.checkboxRow input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.checkboxRow label {
+  cursor: pointer;
+}
+
 .row2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -108,7 +126,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-top: 24px;
+  margin-top: 16px;
 }
 
 .primaryBtn {
@@ -208,15 +226,14 @@
 
 .applyContextStatus {
   composes: pill;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .applyContext {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 16px 18px;
-  margin-bottom: 24px;
+  padding: 14px 16px;
 }
 .applyContextTitle {
   font-size: 1.0625rem;
@@ -224,20 +241,16 @@
   margin-bottom: 6px;
 }
 .applyContextMetaSpacing {
-  margin: 8px 0;
-}
-.applyContextDesc {
-  font-size: 0.8125rem;
-  color: var(--ink-soft);
+  margin: 8px 0 0;
 }
 
 .panelHead {
-  margin-bottom: 26px;
+  margin-bottom: 18px;
   max-width: 62ch;
 }
 .panelHead h2 {
   font-size: 1.625rem;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 .panelHead .dek {
   color: var(--ink-soft);

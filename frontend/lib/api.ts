@@ -1,13 +1,20 @@
 import { logger } from "./logger";
 import type {
   Application,
+  AuthResponse,
+  Employer,
   FieldErrors,
   Job,
+  LoginInput,
   NewApplicationInput,
+  NewEmployerInput,
   NewJobInput,
 } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001/api";
+
+/** Origin the API is served from, without the `/api` suffix — attachment `file` paths are relative to this. */
+export const MEDIA_BASE_URL = API_URL.replace(/\/api\/?$/, "");
 
 /** Thrown for a well-formed 4xx response; carries DRF's field-level errors. */
 export class ValidationError extends Error {
@@ -32,12 +39,16 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  // Let the browser set its own multipart boundary for FormData bodies —
+  // an explicit Content-Type here would omit it and the server couldn't parse the body.
+  const isFormData = init?.body instanceof FormData;
+
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
-      headers: { "Content-Type": "application/json" },
       cache: "no-store",
       ...init,
+      headers: isFormData ? init?.headers : { "Content-Type": "application/json", ...init?.headers },
     });
   } catch (error) {
     logger.error(`Network error calling ${path}`, error);
@@ -51,8 +62,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   if (!response.ok) {
-    logger.error(`Request to ${path} failed with status ${response.status}`);
-    throw new ApiError(`Server error (${response.status}). Please try again shortly.`, response.status);
+    let message = `Server error (${response.status}). Please try again shortly.`;
+    try {
+      const body = await response.json();
+      if (body && typeof body.detail === "string") message = body.detail;
+    } catch {
+      // No JSON body to read a detail message from — keep the generic one.
+    }
+    logger.error(`Request to ${path} failed with status ${response.status}`, message);
+    throw new ApiError(message, response.status);
   }
 
   if (response.status === 204) {
@@ -65,6 +83,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     logger.error(`Could not parse response from ${path}`, error);
     throw new ApiError("Received an unreadable response from the server.");
   }
+}
+
+function authHeaders(token: string): HeadersInit {
+  return { Authorization: `Token ${token}` };
 }
 
 export interface JobSearchParams {
@@ -89,26 +111,71 @@ export async function getJob(id: number): Promise<Job> {
   return job;
 }
 
-export async function createJob(input: NewJobInput): Promise<Job> {
+export async function createJob(input: NewJobInput, token: string): Promise<Job> {
   const job = await request<Job>("/jobs", {
     method: "POST",
     body: JSON.stringify(input),
+    headers: authHeaders(token),
   });
   logger.info(`Created job ${job.id}: "${job.title}"`);
   return job;
 }
 
 export async function createApplication(input: NewApplicationInput): Promise<Application> {
+  const formData = new FormData();
+  formData.set("job", String(input.job));
+  formData.set("applicant_name", input.applicant_name);
+  formData.set("applicant_email", input.applicant_email);
+  formData.set("description", input.description);
+  for (const file of input.attachments ?? []) {
+    formData.append("attachments", file);
+  }
+
   const application = await request<Application>("/applications", {
     method: "POST",
-    body: JSON.stringify(input),
+    body: formData,
   });
   logger.info(`Submitted application ${application.id} for job ${application.job}`);
   return application;
 }
 
-export async function getJobApplications(jobId: number): Promise<Application[]> {
-  const applications = await request<Application[]>(`/jobs/${jobId}/applications`);
+export async function getJobApplications(jobId: number, token: string): Promise<Application[]> {
+  const applications = await request<Application[]>(`/jobs/${jobId}/applications`, {
+    headers: authHeaders(token),
+  });
   logger.info(`Fetched ${applications.length} application(s) for job ${jobId}`);
   return applications;
+}
+
+export async function registerEmployer(input: NewEmployerInput): Promise<AuthResponse> {
+  const result = await request<AuthResponse>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  logger.info(`Employer registered: ${result.employer.id}`);
+  return result;
+}
+
+export async function loginEmployer(input: LoginInput): Promise<AuthResponse> {
+  const result = await request<AuthResponse>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  logger.info(`Employer logged in: ${result.employer.id}`);
+  return result;
+}
+
+export async function logoutEmployer(token: string): Promise<void> {
+  await request<void>("/auth/logout", { method: "POST", headers: authHeaders(token) });
+  logger.info("Employer logged out");
+}
+
+export async function getCurrentEmployer(token: string): Promise<Employer> {
+  return request<Employer>("/auth/me", { headers: authHeaders(token) });
+}
+
+export async function getEmployerJobs(token: string): Promise<Job[]> {
+  const jobs = await request<Job[]>("/employer/jobs", { headers: authHeaders(token) });
+  logger.info(`Fetched ${jobs.length} of the employer's own job(s)`);
+  return jobs;
 }
