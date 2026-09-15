@@ -1,0 +1,22 @@
+2026-09-15 01:26:05,512 INFO django.utils.autoreload autoreload.run_with_reloader:667 - Watching for file changes with StatReloader
+2026-09-15 01:26:13,976 INFO jobs.models models.save:44 - Job created: id=1 title='Software Engineer' location='Remote'
+2026-09-15 01:26:13,978 INFO django.server basehttp.log_message:213 - "POST /api/jobs HTTP/1.1" 201 171
+2026-09-15 01:26:13,997 INFO jobs.views views.job_list_create:34 - Job list fetched: count=1 title='Software' location=None
+2026-09-15 01:26:14,002 INFO django.server basehttp.log_message:213 - "GET /api/jobs?title=Software HTTP/1.1" 200 173
+2026-09-15 01:26:14,024 INFO jobs.models models.save:70 - Application submitted: id=1 applicant='jane@example.com' job_id=1
+2026-09-15 01:26:14,025 INFO django.server basehttp.log_message:213 - "POST /api/applications HTTP/1.1" 201 165
+2026-09-15 01:26:14,034 WARNING jobs.views views.application_create:79 - Rejected application submission: invalid payload {'job': [ErrorDetail(string='This field is required.', code='required')], 'applicant_email': [ErrorDetail(string='This field is required.', code='required')], 'cover_letter': [ErrorDetail(string='This field is required.', code='required')]}
+2026-09-15 01:26:14,036 WARNING django.request log.log_response:253 - Bad Request: /api/applications
+2026-09-15 01:26:14,036 WARNING django.server basehttp.log_message:213 - "POST /api/applications HTTP/1.1" 400 124
+2026-09-15 01:26:14,051 INFO jobs.views views.job_applications:109 - Applications fetched for job_id=1: count=1
+2026-09-15 01:26:14,057 INFO django.server basehttp.log_message:213 - "GET /api/jobs/1/applications HTTP/1.1" 200 167
+2026-09-15 01:29:49,267 INFO django.utils.autoreload autoreload.trigger_reload:265 - /home/reluvate/RDBC/RDBC4/backend/jobs/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+September 15, 2026 - 01:26:05
+Django version 5.1.15, using settings 'myproject.settings'
+Starting development server at http://0.0.0.0:8001/
+Quit the server with CONTROL-C.
+
+2026-09-15 01:29:49,490 INFO django.utils.autoreload autoreload.run_with_reloader:667 - Watching for file changes with StatReloader
