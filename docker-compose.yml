@@ -34,9 +34,9 @@ services:
       - ./backend/.env
     environment:
       DEBUG: "False"
-      ALLOWED_HOSTS: "localhost,127.0.0.1,backend"
-      CORS_ALLOWED_ORIGINS: "http://localhost"
-      FRONTEND_URL: "http://localhost"
+      ALLOWED_HOSTS: "localhost,127.0.0.1,backend,3.107.116.192"
+      CORS_ALLOWED_ORIGINS: "http://3.107.116.192"
+      FRONTEND_URL: "http://3.107.116.192"
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       CELERY_BROKER_URL: redis://redis:6379/0
@@ -82,7 +82,7 @@ services:
       args:
         # Baked into the browser bundle — the public address nginx answers on.
         # Rebuild the image if this changes (e.g. a real domain in production).
-        NEXT_PUBLIC_API_URL: http://localhost/api
+        NEXT_PUBLIC_API_URL: http://3.107.116.192/api
     environment:
       # Server-side (SSR) fetches only — read at runtime, talks straight to
       # the backend over the Docker network instead of round-tripping nginx.

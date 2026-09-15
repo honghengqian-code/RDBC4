@@ -163,6 +163,17 @@ def application_create(request):
             {'detail': 'Could not submit application at this time.'},
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
+    except OSError:
+        # Raised by the storage backend if it can't actually write the attachment
+        # (e.g. a permissions/disk-space problem on the media volume) — the DB
+        # writes above still roll back since this is inside the atomic block.
+        logger.exception(
+            'Storage error while saving attachment(s) for application with data=%s', request.data,
+        )
+        return Response(
+            {'detail': 'Could not save your attachment(s) at this time.'},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
 
     send_application_received_email.delay(application.id)
     send_new_applicant_email.delay(application.id)

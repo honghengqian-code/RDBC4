@@ -136,11 +136,11 @@ export default function ApplicationForm({ job, applicantCount }: { job: Job; app
               <div className={`${ui.applyContextStatus} ${job.status === "open" ? ui.pillOpen : ui.pillClosed}`}>
                 {job.status === "open" ? "Open" : "Closed"}
               </div>
-              <h3 className={ui.applyContextTitle}>{job.title}</h3>
+              <h3 className={ui.applyContextTitle} title={job.title}>{job.title}</h3>
               <div className={`${styles.jobMeta} ${ui.applyContextMetaSpacing}`}>
-                <span>
+                <span className={ui.metaLocation}>
                   <LocationIcon />
-                  {job.location}
+                  <span className={ui.metaTruncate} title={job.location}>{job.location}</span>
                 </span>
                 <span className={ui.reqCode}>{jobReqCode(job.id)}</span>
                 <span>
