@@ -80,6 +80,11 @@
   align-items: center;
 }
 
+.employerActions {
+  display: flex;
+  gap: 8px;
+}
+
 .applyBtn {
   background: none;
   border: 1px solid var(--line-strong);

@@ -6,22 +6,19 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import styles from "./Header.module.css";
 
-const SEEKER_TABS = [
-  { href: "/jobs", label: "Browse jobs", match: (path: string) => path === "/jobs" },
-  { href: "/apply", label: "Apply", match: (path: string) => path.startsWith("/apply") || path.includes("/apply") },
-];
-
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { employer, logout } = useAuth();
 
-  const employerTab = {
-    href: employer ? "/employer/dashboard" : "/employer",
-    label: employer ? "Dashboard" : "Employers",
-    match: (path: string) => path.startsWith("/employer") || path.includes("/applicants"),
-  };
-  const tabs = [...SEEKER_TABS, employerTab];
+  const tabs = [
+    { href: "/jobs", label: "Browse jobs", match: (path: string) => path === "/jobs" },
+    {
+      href: employer ? "/employer/dashboard" : "/employer",
+      label: employer ? "Dashboard" : "Employers",
+      match: (path: string) => path.startsWith("/employer") || path.includes("/applicants"),
+    },
+  ];
 
   async function handleLogout() {
     await logout();

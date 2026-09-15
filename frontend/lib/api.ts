@@ -5,13 +5,15 @@ import type {
   Employer,
   FieldErrors,
   Job,
+  JobStatus,
   LoginInput,
   NewApplicationInput,
   NewEmployerInput,
   NewJobInput,
+  PaginatedResponse,
 } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8001/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
 
 /** Origin the API is served from, without the `/api` suffix — attachment `file` paths are relative to this. */
 export const MEDIA_BASE_URL = API_URL.replace(/\/api\/?$/, "");
@@ -91,18 +93,30 @@ function authHeaders(token: string): HeadersInit {
 
 export interface JobSearchParams {
   title?: string;
+  company?: string;
   location?: string;
+  status?: JobStatus;
+  page?: number;
+  /** Overrides the default page size (backend caps at 50) — for callers that need an exhaustive list. */
+  pageSize?: number;
 }
 
-export async function getJobs(params: JobSearchParams = {}): Promise<Job[]> {
+/** Matches jobs/pagination.py's JobPagination.page_size — keep the two in sync. */
+export const JOB_PAGE_SIZE = 10;
+
+export async function getJobs(params: JobSearchParams = {}): Promise<PaginatedResponse<Job>> {
   const query = new URLSearchParams();
   if (params.title) query.set("title", params.title);
+  if (params.company) query.set("company", params.company);
   if (params.location) query.set("location", params.location);
+  if (params.status) query.set("status", params.status);
+  if (params.page && params.page > 1) query.set("page", String(params.page));
+  if (params.pageSize) query.set("page_size", String(params.pageSize));
   const qs = query.toString();
 
-  const jobs = await request<Job[]>(`/jobs${qs ? `?${qs}` : ""}`);
-  logger.info(`Fetched ${jobs.length} job(s)`, params);
-  return jobs;
+  const result = await request<PaginatedResponse<Job>>(`/jobs${qs ? `?${qs}` : ""}`);
+  logger.info(`Fetched ${result.results.length} of ${result.count} job(s)`, params);
+  return result;
 }
 
 export async function getJob(id: number): Promise<Job> {
@@ -119,6 +133,21 @@ export async function createJob(input: NewJobInput, token: string): Promise<Job>
   });
   logger.info(`Created job ${job.id}: "${job.title}"`);
   return job;
+}
+
+export async function updateJob(id: number, input: NewJobInput, token: string): Promise<Job> {
+  const job = await request<Job>(`/jobs/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(input),
+    headers: authHeaders(token),
+  });
+  logger.info(`Updated job ${job.id}: "${job.title}"`);
+  return job;
+}
+
+export async function deleteJob(id: number, token: string): Promise<void> {
+  await request<void>(`/jobs/${id}`, { method: "DELETE", headers: authHeaders(token) });
+  logger.info(`Deleted job ${id}`);
 }
 
 export async function createApplication(input: NewApplicationInput): Promise<Application> {
@@ -145,6 +174,14 @@ export async function getJobApplications(jobId: number, token: string): Promise<
   });
   logger.info(`Fetched ${applications.length} application(s) for job ${jobId}`);
   return applications;
+}
+
+export async function getApplication(applicationId: number, token: string): Promise<Application> {
+  const application = await request<Application>(`/applications/${applicationId}`, {
+    headers: authHeaders(token),
+  });
+  logger.info(`Fetched application ${applicationId}`);
+  return application;
 }
 
 export async function registerEmployer(input: NewEmployerInput): Promise<AuthResponse> {
@@ -174,8 +211,9 @@ export async function getCurrentEmployer(token: string): Promise<Employer> {
   return request<Employer>("/auth/me", { headers: authHeaders(token) });
 }
 
-export async function getEmployerJobs(token: string): Promise<Job[]> {
-  const jobs = await request<Job[]>("/employer/jobs", { headers: authHeaders(token) });
-  logger.info(`Fetched ${jobs.length} of the employer's own job(s)`);
-  return jobs;
+export async function getEmployerJobs(token: string, page = 1): Promise<PaginatedResponse<Job>> {
+  const qs = page > 1 ? `?page=${page}` : "";
+  const result = await request<PaginatedResponse<Job>>(`/employer/jobs${qs}`, { headers: authHeaders(token) });
+  logger.info(`Fetched ${result.results.length} of ${result.count} of the employer's own job(s)`);
+  return result;
 }

@@ -17,23 +17,31 @@
 }
 
 .applicantRow {
-  padding: 18px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 4px;
   border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  color: inherit;
+  transition: background 150ms;
+}
+.applicantRow:hover {
+  background: var(--surface-sunk);
 }
 
-.applicantTop {
+.applicantMain {
+  min-width: 0;
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 8px;
 }
 
 .applicantName {
   font-size: 0.9375rem;
   font-weight: 600;
-  margin-right: 10px;
 }
 
 .applicantEmail {
@@ -42,44 +50,26 @@
   color: var(--ink-faint);
 }
 
+.applicantRowRight {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  color: var(--ink-faint);
+}
+
+.attachmentBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
 .applicantWhen {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--ink-faint);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
-}
-
-.applicantDesc {
-  color: var(--ink-soft);
-  font-size: 0.875rem;
-  max-width: 68ch;
-}
-
-.attachments {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.attachmentChip {
-  display: inline-flex;
-  align-items: center;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 0.75rem;
-  color: var(--ink);
-  text-decoration: none;
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.attachmentChip:hover {
-  border-color: var(--accent);
-  color: var(--accent-ink);
-  background: var(--accent-soft);
 }

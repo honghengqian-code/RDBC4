@@ -45,6 +45,14 @@ export interface NewApplicationInput {
 /** Shape of a DRF validation-error response: { field: ["message", ...] }. */
 export type FieldErrors = Record<string, string[]>;
 
+/** Shape of a DRF PageNumberPagination response. */
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
 export interface Employer {
   id: number;
   name: string;

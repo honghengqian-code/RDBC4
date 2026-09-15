@@ -8,14 +8,18 @@ import ui from "./ui.module.css";
 export default function JobList({
   jobs,
   variant = "seeker",
+  total,
 }: {
   jobs: Job[];
   variant?: "seeker" | "employer";
+  /** Total matching roles across all pages — defaults to jobs.length when the list isn't paginated. */
+  total?: number;
 }) {
+  const totalCount = total ?? jobs.length;
   return (
     <>
       <p className={styles.resultCount}>
-        <span>{jobs.length}</span> role{jobs.length === 1 ? "" : "s"} shown
+        <span>{totalCount}</span> role{totalCount === 1 ? "" : "s"} found
       </p>
 
       {jobs.length === 0 ? (
@@ -43,9 +47,14 @@ export default function JobList({
               </div>
               <div className={styles.jobRowSide}>
                 {variant === "employer" ? (
-                  <Link href={`/jobs/${job.id}/applicants`} className={styles.applyBtn}>
-                    View applicants
-                  </Link>
+                  <div className={styles.employerActions}>
+                    <Link href={`/employer/jobs/${job.id}/edit`} className={styles.applyBtn}>
+                      Edit
+                    </Link>
+                    <Link href={`/jobs/${job.id}/applicants`} className={styles.applyBtn}>
+                      Applicants
+                    </Link>
+                  </div>
                 ) : job.status === "open" ? (
                   <Link href={`/jobs/${job.id}/apply`} className={styles.applyBtn}>
                     View &amp; apply

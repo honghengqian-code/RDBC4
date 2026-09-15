@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { ApiError, createJob, ValidationError } from "@/lib/api";
+import { ApiError, createJob, deleteJob, updateJob, ValidationError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { logger } from "@/lib/logger";
-import type { FieldErrors, JobStatus } from "@/lib/types";
+import type { FieldErrors, Job, JobStatus } from "@/lib/types";
 import { CheckIcon } from "./icons";
 import ui from "./ui.module.css";
 
@@ -18,13 +19,21 @@ type FormState = {
 
 const EMPTY_FORM: FormState = { title: "", location: "", status: "open", description: "" };
 
-export default function JobForm() {
+export default function JobForm({ job }: { job?: Job }) {
+  const isEditing = Boolean(job);
   const { token } = useAuth();
-  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const router = useRouter();
+  const [form, setForm] = useState<FormState>(
+    job
+      ? { title: job.title, location: job.location, status: job.status, description: job.description }
+      : EMPTY_FORM,
+  );
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [posted, setPosted] = useState<{ title: string; status: JobStatus } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -57,16 +66,16 @@ export default function JobForm() {
     setSubmitting(true);
 
     try {
-      const job = await createJob(form, token);
-      setPosted({ title: job.title, status: job.status });
-      setForm(EMPTY_FORM);
+      const savedJob = isEditing ? await updateJob(job!.id, form, token) : await createJob(form, token);
+      setPosted({ title: savedJob.title, status: savedJob.status });
+      if (!isEditing) setForm(EMPTY_FORM);
     } catch (error) {
       if (error instanceof ValidationError) {
         setFieldErrors(error.fieldErrors);
       } else if (error instanceof ApiError) {
         setSubmitError(error.message);
       } else {
-        logger.error("Unexpected error posting a job", error);
+        logger.error(`Unexpected error ${isEditing ? "updating" : "posting"} a job`, error);
         setSubmitError("Something went wrong. Please try again.");
       }
     } finally {
@@ -74,11 +83,34 @@ export default function JobForm() {
     }
   }
 
+  async function handleDelete() {
+    if (!job || !token) return;
+    const confirmed = window.confirm(
+      `Delete "${job.title}"? This also removes every application submitted to it. This can't be undone.`,
+    );
+    if (!confirmed) return;
+
+    setDeleteError(null);
+    setDeleting(true);
+    try {
+      await deleteJob(job.id, token);
+      router.push("/employer/dashboard");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        setDeleteError(error.message);
+      } else {
+        logger.error("Unexpected error deleting a job", error);
+        setDeleteError("Something went wrong. Please try again.");
+      }
+      setDeleting(false);
+    }
+  }
+
   return (
     <section>
       <div className={ui.panelHead}>
         <p className="eyebrow">Employers</p>
-        <h2>Post a role</h2>
+        <h2>{isEditing ? "Edit role" : "Post a role"}</h2>
         <p className={ui.dek}>
           Fields mirror the <code>Job</code> model — title, description, location and status.
         </p>
@@ -88,12 +120,16 @@ export default function JobForm() {
         <div className={ui.successBanner}>
           <CheckIcon />
           <div>
-            <strong>Role posted</strong>
+            <strong>{isEditing ? "Role updated" : "Role posted"}</strong>
             <p>
               {`"${posted.title}" `}
               {posted.status === "open"
-                ? "now appears at the top of Browse jobs, open for applications."
-                : "was saved as Closed, so it won't accept applications yet."}
+                ? isEditing
+                  ? "is open and visible on Browse jobs."
+                  : "now appears at the top of Browse jobs, open for applications."
+                : isEditing
+                  ? "is now Closed, and no longer shows on Browse jobs."
+                  : "was saved as Closed, so it won't accept applications yet."}
             </p>
             <Link href="/employer/dashboard" className={ui.successLink}>
               Back to your roles →
@@ -105,8 +141,17 @@ export default function JobForm() {
       {submitError && (
         <div className={ui.errorBanner}>
           <div>
-            <strong>Couldn&apos;t post this role</strong>
+            <strong>Couldn&apos;t {isEditing ? "update" : "post"} this role</strong>
             <p>{submitError}</p>
+          </div>
+        </div>
+      )}
+
+      {deleteError && (
+        <div className={ui.errorBanner}>
+          <div>
+            <strong>Couldn&apos;t delete this role</strong>
+            <p>{deleteError}</p>
           </div>
         </div>
       )}
@@ -168,9 +213,14 @@ export default function JobForm() {
         </div>
 
         <div className={ui.formActions}>
-          <button className={ui.primaryBtn} type="submit" disabled={submitting}>
-            {submitting ? "Publishing…" : "Publish role"}
+          <button className={ui.primaryBtn} type="submit" disabled={submitting || deleting}>
+            {submitting ? (isEditing ? "Updating…" : "Publishing…") : isEditing ? "Update role" : "Publish role"}
           </button>
+          {isEditing && (
+            <button type="button" className={ui.dangerBtn} onClick={handleDelete} disabled={submitting || deleting}>
+              {deleting ? "Deleting…" : "Delete role"}
+            </button>
+          )}
         </div>
       </form>
     </section>

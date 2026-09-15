@@ -1,0 +1,44 @@
+.backLink {
+  display: inline-block;
+  margin-bottom: 14px;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+  margin: -8px 0 22px;
+}
+.metaRow span {
+  font-family: var(--font-mono);
+}
+
+.descCard {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 22px;
+}
+.descCard h3 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+}
+.descCard p {
+  color: var(--ink);
+  font-size: 0.9375rem;
+  white-space: pre-wrap;
+}
+
+.attachmentsSection h3 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  margin-bottom: 10px;
+}

@@ -85,33 +85,71 @@ class JobListCreateAPITest(APITestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data['count'], 2)
+        self.assertEqual(len(response.data['results']), 2)
 
     def test_list_jobs_filters_by_title(self):
         response = self.client.get(self.url, {'title': 'Backend'})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['title'], 'Backend Developer')
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['title'], 'Backend Developer')
 
     def test_list_jobs_filters_by_location(self):
         response = self.client.get(self.url, {'location': 'New York'})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['location'], 'New York')
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['location'], 'New York')
+
+    def test_list_jobs_filters_by_company(self):
+        employer = Employer.objects.create(name='Acme Corp', contact_email='hr@acme.test')
+        self.nyc_job.employer = employer
+        self.nyc_job.save()
+
+        response = self.client.get(self.url, {'company': 'Acme'})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['title'], 'Product Designer')
+
+    def test_list_jobs_filters_by_status(self):
+        Job.objects.filter(pk=self.nyc_job.pk).update(status='closed')
+        response = self.client.get(self.url, {'status': 'closed'})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['title'], 'Product Designer')
 
     def test_list_jobs_search_with_no_matches_returns_empty_list(self):
         response = self.client.get(self.url, {'title': 'Nonexistent'})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
+        self.assertEqual(response.data['count'], 0)
+        self.assertEqual(response.data['results'], [])
 
     def test_list_jobs_database_error_returns_503(self):
         with patch('jobs.models.Job.objects.all', side_effect=DatabaseError('down')):
             response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def test_list_jobs_is_paginated(self):
+        for i in range(15):
+            Job.objects.create(title=f'Extra Job {i}', description='D', location='Remote')
+
+        first_page = self.client.get(self.url)
+        self.assertEqual(first_page.status_code, status.HTTP_200_OK)
+        self.assertEqual(first_page.data['count'], 17)
+        self.assertEqual(len(first_page.data['results']), 10)
+        self.assertIsNotNone(first_page.data['next'])
+        self.assertIsNone(first_page.data['previous'])
+
+        second_page = self.client.get(self.url, {'page': 2})
+        self.assertEqual(second_page.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(second_page.data['results']), 7)
+        self.assertIsNone(second_page.data['next'])
+        self.assertIsNotNone(second_page.data['previous'])
 
     def test_list_jobs_logs_fetch(self):
         with self.assertLogs('jobs', level='INFO') as captured:
@@ -121,9 +159,20 @@ class JobListCreateAPITest(APITestCase):
 
 class JobDetailAPITest(APITestCase):
     def setUp(self):
+        owner = User.objects.create_user(username='hr@acme.test', email='hr@acme.test', password='hunter22')
+        self.employer = Employer.objects.create(user=owner, name='Acme Corp', contact_email='hr@acme.test')
+        self.token = Token.objects.create(user=owner)
+
+        other_owner = User.objects.create_user(username='x@x.test', email='x@x.test', password='hunter22')
+        Employer.objects.create(user=other_owner, name='Other Co', contact_email='x@x.test')
+        self.other_token = Token.objects.create(user=other_owner)
+
         self.job = Job.objects.create(
-            title='Backend Developer', description='Build APIs', location='Remote',
+            title='Backend Developer', description='Build APIs', location='Remote', employer=self.employer,
         )
+
+    def authed(self, token):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
 
     def test_get_existing_job_returns_200(self):
         response = self.client.get(f'/api/jobs/{self.job.pk}')
@@ -139,6 +188,98 @@ class JobDetailAPITest(APITestCase):
     def test_get_job_database_error_returns_503(self):
         with patch('jobs.models.Job.objects.filter', side_effect=DatabaseError('down')):
             response = self.client.get(f'/api/jobs/{self.job.pk}')
+
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def test_owner_can_update_job(self):
+        self.authed(self.token)
+        payload = {'title': 'Senior Backend Developer', 'description': 'Build APIs', 'location': 'Remote', 'status': 'closed'}
+        response = self.client.put(f'/api/jobs/{self.job.pk}', payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], 'Senior Backend Developer')
+        self.assertEqual(response.data['status'], 'closed')
+        self.job.refresh_from_db()
+        self.assertEqual(self.job.title, 'Senior Backend Developer')
+        self.assertEqual(self.job.status, 'closed')
+
+    def test_update_requires_authentication(self):
+        payload = {'title': 'X', 'description': 'Y', 'location': 'Z', 'status': 'open'}
+        response = self.client.put(f'/api/jobs/{self.job.pk}', payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_rejects_non_owning_employer(self):
+        self.authed(self.other_token)
+        payload = {'title': 'X', 'description': 'Y', 'location': 'Z', 'status': 'open'}
+        response = self.client.put(f'/api/jobs/{self.job.pk}', payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_missing_job_returns_404(self):
+        self.authed(self.token)
+        payload = {'title': 'X', 'description': 'Y', 'location': 'Z', 'status': 'open'}
+        response = self.client.put('/api/jobs/9999', payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_invalid_payload_returns_400(self):
+        self.authed(self.token)
+        response = self.client.put(f'/api/jobs/{self.job.pk}', {'title': 'Incomplete'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_ignores_client_supplied_employer(self):
+        other_user = User.objects.create_user(username='y@y.test', email='y@y.test', password='hunter22')
+        other_employer = Employer.objects.create(user=other_user, name='Sneaky Co', contact_email='y@y.test')
+        self.authed(self.token)
+        payload = {
+            'title': 'Backend Developer', 'description': 'Build APIs', 'location': 'Remote', 'status': 'open',
+            'employer': other_employer.id,
+        }
+        response = self.client.put(f'/api/jobs/{self.job.pk}', payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['employer'], self.employer.id)
+
+    def test_update_database_error_returns_503(self):
+        self.authed(self.token)
+        payload = {'title': 'X', 'description': 'Y', 'location': 'Z', 'status': 'open'}
+        with patch('jobs.serializers.JobSerializer.save', side_effect=DatabaseError('down')):
+            response = self.client.put(f'/api/jobs/{self.job.pk}', payload, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    def test_owner_can_delete_job(self):
+        self.authed(self.token)
+        response = self.client.delete(f'/api/jobs/{self.job.pk}')
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Job.objects.filter(pk=self.job.pk).exists())
+
+    def test_delete_requires_authentication(self):
+        response = self.client.delete(f'/api/jobs/{self.job.pk}')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertTrue(Job.objects.filter(pk=self.job.pk).exists())
+
+    def test_delete_rejects_non_owning_employer(self):
+        self.authed(self.other_token)
+        response = self.client.delete(f'/api/jobs/{self.job.pk}')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Job.objects.filter(pk=self.job.pk).exists())
+
+    def test_delete_missing_job_returns_404(self):
+        self.authed(self.token)
+        response = self.client.delete('/api/jobs/9999')
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_database_error_returns_503(self):
+        self.authed(self.token)
+        with patch('jobs.models.Job.delete', side_effect=DatabaseError('down')):
+            response = self.client.delete(f'/api/jobs/{self.job.pk}')
 
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
 
@@ -367,8 +508,19 @@ class EmployerJobsAPITest(APITestCase):
         response = self.client.get('/api/employer/jobs')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['title'], 'Backend Developer')
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['title'], 'Backend Developer')
+
+    def test_lists_own_jobs_paginated(self):
+        for i in range(12):
+            Job.objects.create(title=f'Extra {i}', description='D', location='Remote', employer=self.employer)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+        response = self.client.get('/api/employer/jobs')
+
+        self.assertEqual(response.data['count'], 13)
+        self.assertEqual(len(response.data['results']), 10)
+        self.assertIsNotNone(response.data['next'])
 
     def test_requires_authentication(self):
         response = self.client.get('/api/employer/jobs')
@@ -388,5 +540,59 @@ class EmployerJobsAPITest(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         with patch('jobs.models.Job.objects.filter', side_effect=DatabaseError('down')):
             response = self.client.get('/api/employer/jobs')
+
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+class ApplicationDetailAPITest(APITestCase):
+    def setUp(self):
+        owner = User.objects.create_user(username='hr@acme.test', email='hr@acme.test', password='hunter22')
+        self.employer = Employer.objects.create(user=owner, name='Acme Corp', contact_email='hr@acme.test')
+        self.token = Token.objects.create(user=owner)
+
+        other_owner = User.objects.create_user(username='x@x.test', email='x@x.test', password='hunter22')
+        Employer.objects.create(user=other_owner, name='Other Co', contact_email='x@x.test')
+        self.other_token = Token.objects.create(user=other_owner)
+
+        self.job = Job.objects.create(
+            title='Backend Developer', description='Build APIs', location='Remote', employer=self.employer,
+        )
+        self.application = Application.objects.create(
+            job=self.job, applicant_name='Jane Doe',
+            applicant_email='jane@example.com', description='Application description.',
+        )
+
+    def authed(self, token):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
+    def test_owner_can_view_application_detail(self):
+        self.authed(self.token)
+        response = self.client.get(f'/api/applications/{self.application.pk}')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['applicant_name'], 'Jane Doe')
+        self.assertEqual(response.data['description'], 'Application description.')
+
+    def test_requires_authentication(self):
+        response = self.client.get(f'/api/applications/{self.application.pk}')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_rejects_non_owning_employer(self):
+        self.authed(self.other_token)
+        response = self.client.get(f'/api/applications/{self.application.pk}')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_missing_application_returns_404(self):
+        self.authed(self.token)
+        response = self.client.get('/api/applications/9999')
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_database_error_returns_503(self):
+        self.authed(self.token)
+        with patch('jobs.models.Application.objects.filter', side_effect=DatabaseError('down')):
+            response = self.client.get(f'/api/applications/{self.application.pk}')
 
         self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)

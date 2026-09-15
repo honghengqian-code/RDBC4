@@ -8,8 +8,8 @@ export default async function HomePage() {
   let openCount = 0;
 
   try {
-    const jobs = await getJobs();
-    openCount = jobs.filter((job) => job.status === "open").length;
+    const result = await getJobs({ status: "open" });
+    openCount = result.count;
   } catch (error) {
     logger.error("Failed to load open-role count for the landing page", error);
   }

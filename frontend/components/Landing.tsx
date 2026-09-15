@@ -24,13 +24,10 @@ export default function Landing({ openCount }: { openCount: number }) {
             <Search size={18} strokeWidth={2.25} aria-hidden="true" />
           </div>
           <h2>Looking for work</h2>
-          <p>Browse open roles by title or location, then apply straight from the listing.</p>
+          <p>Browse open roles by title, company or location, then apply straight from the listing.</p>
           <div className={styles.pathActions}>
             <Link href="/jobs" className={styles.ctaBtn}>
               Browse jobs
-            </Link>
-            <Link href="/apply" className={ui.ghostLink}>
-              Jump to Apply →
             </Link>
           </div>
         </div>

@@ -183,7 +183,7 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Noticeboard <noreply@noticeboard.local>')
 
 # Used to build links back to the frontend app inside outgoing emails.
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3001')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 
 
 # Logging
